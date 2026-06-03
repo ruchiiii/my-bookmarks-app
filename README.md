@@ -21,6 +21,7 @@ Built in one session using **Claude Code** — Anthropic's AI-powered coding ass
 | 🔍 **Live Search** | Filter bookmarks instantly by title or category as you type |
 | 🏷️ **Category Filters** | One-click pill buttons to filter by category |
 | 💾 **Local Storage** | Everything persists in the browser — no account needed |
+| ✏️ **Edit Bookmarks** | Edit any bookmark's title, URL, category, or notes inline |
 | 🗑️ **Delete Bookmarks** | Remove any bookmark with a single click |
 | 📱 **Fully Responsive** | Works beautifully on desktop, tablet, and mobile |
 | 🎨 **Modern UI** | Clean blue color scheme with smooth animations and hover effects |
@@ -72,8 +73,11 @@ Everything lives in **one single file** — just open it in any browser, no inst
 5. **Add** a new bookmark with the `+ Add Bookmark` button
    - Enter a title, URL, category, and optional notes
    - URL auto-corrects if you forget `https://`
-6. **Delete** any bookmark using the trash icon on its card
-7. **Everything saves automatically** — refresh the page, your bookmarks are still there
+6. **Edit** any bookmark using the ✏️ pencil icon on its card
+   - Pre-fills all fields with existing data
+   - Click **Update** to save your changes
+7. **Delete** any bookmark using the trash icon on its card
+8. **Everything saves automatically** — refresh the page, your bookmarks are still there
 
 ---
 

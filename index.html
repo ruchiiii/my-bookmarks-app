@@ -129,18 +129,19 @@
       line-height: 1.35;
     }
     .card-title:hover { color: var(--blue); }
-    .btn-delete {
+    .card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .btn-delete, .btn-edit {
       background: none;
       border: none;
       cursor: pointer;
       color: var(--muted);
-      padding: 2px 4px;
-      border-radius: 4px;
+      padding: 4px 6px;
+      border-radius: 6px;
       line-height: 1;
-      flex-shrink: 0;
       transition: color .15s, background .15s;
     }
     .btn-delete:hover { color: var(--danger); background: #fef2f2; }
+    .btn-edit:hover { color: var(--blue); background: var(--blue-light); }
 
     .card-url {
       font-size: .8rem;
@@ -281,7 +282,7 @@
 <!-- Modal -->
 <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <h2>Add Bookmark</h2>
+    <h2 id="modal-title">Add Bookmark</h2>
     <div class="form-group" id="fg-title">
       <label>Title *</label>
       <input id="f-title" type="text" placeholder="e.g. GitHub" />
@@ -303,7 +304,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveBookmark()">Save</button>
+      <button class="btn-save" id="btn-save" onclick="saveBookmark()">Save</button>
     </div>
   </div>
 </div>
@@ -422,11 +423,19 @@
         <div class="card">
           <div class="card-header">
             <a class="card-title" href="${escHtml(b.url)}" target="_blank" rel="noopener">${escHtml(b.title)}</a>
-            <button class="btn-delete" title="Delete" onclick="deleteBookmark('${b.id}')">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
-              </svg>
-            </button>
+            <div class="card-actions">
+              <button class="btn-edit" title="Edit" onclick="editBookmark('${b.id}')">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-delete" title="Delete" onclick="deleteBookmark('${b.id}')">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                </svg>
+              </button>
+            </div>
           </div>
           ${badge}
           <a class="card-url" href="${escHtml(b.url)}" target="_blank" rel="noopener">${escHtml(displayUrl)}</a>
@@ -443,7 +452,12 @@
   }
 
   // ── Modal ──
+  let editingId = null;
+
   function openModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Add Bookmark';
+    document.getElementById('btn-save').textContent = 'Save';
     document.getElementById('f-title').value = '';
     document.getElementById('f-url').value = '';
     document.getElementById('f-cat').value = '';
@@ -453,8 +467,24 @@
     setTimeout(() => document.getElementById('f-title').focus(), 50);
   }
 
+  function editBookmark(id) {
+    const b = bookmarks.find(x => x.id === id);
+    if (!b) return;
+    editingId = id;
+    document.getElementById('modal-title').textContent = 'Edit Bookmark';
+    document.getElementById('btn-save').textContent = 'Update';
+    document.getElementById('f-title').value = b.title;
+    document.getElementById('f-url').value = b.url;
+    document.getElementById('f-cat').value = b.category || '';
+    document.getElementById('f-notes').value = b.notes || '';
+    clearErrors();
+    document.getElementById('overlay').classList.add('open');
+    setTimeout(() => document.getElementById('f-title').focus(), 50);
+  }
+
   function closeModal() {
     document.getElementById('overlay').classList.remove('open');
+    editingId = null;
   }
 
   function handleOverlayClick(e) {
@@ -486,11 +516,16 @@
     }
     if (!valid) return;
 
-    bookmarks.unshift({ id: uid(), title, url, category, notes, createdAt: Date.now() });
+    if (editingId) {
+      const idx = bookmarks.findIndex(b => b.id === editingId);
+      if (idx !== -1) bookmarks[idx] = { ...bookmarks[idx], title, url, category, notes };
+    } else {
+      bookmarks.unshift({ id: uid(), title, url, category, notes, createdAt: Date.now() });
+      activeFilter = 'All';
+      document.getElementById('search').value = '';
+    }
     save();
     closeModal();
-    activeFilter = 'All';
-    document.getElementById('search').value = '';
     render();
   }
 
